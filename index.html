@@ -198,17 +198,21 @@ a{color:var(--accent-ink)}
 
 <section id="seed">
   <h2>あなたの <code>~/.claude/CLAUDE.md</code> に貼る種</h2>
-  <p class="tldr">この節で分かること: repo の説明書とは別に、あなた自身の Claude の癖を決める8行があること。</p>
+  <p class="tldr">この節で分かること: repo の説明書とは別に、あなた自身の Claude の癖を決める8行があること。育て方は「間違えた直後に1行」。</p>
   <p>これは repo の説明書ではなく、<strong>あなた自身の Claude Code の癖</strong>を決めるファイルです。渡すのは種だけで、あとは自分で育ててください。育てる前提のものだから、拓也のものとズレていい。</p>
-<pre><code>- 読まずに実装を始めない。repo の CLAUDE.md と ONBOARDING.md を先に読んでから動く
-- 送信・書込は dry-run が既定。`--execute` は明示したときだけ
-- 止まるのは「外に出るもの」と「お金が動くもの」だけ。それ以外は聞かずにやって報告する
-- 「テストしました」は出力を貼ったときだけ有効。貼らずに緑と言わない
-- 詰まったら `grep -n "&lt;語&gt;" docs/KNOWLEDGE.md` で事例を引く（通読はしない）
-- ファイル・資産を作ったら、索引（`docs/TODO.md` / `docs/KNOWLEDGE.md`）に1行足す
-- 1 Issue = 1 セッション。他の Issue には手を広げない
-- エラーは全文を GitHub Issue に貼る（LINE でなく。ログがそのまま残る）
+<pre><code># 私の Claude Code の癖（種・自分で育てる）
+
+- 読んでから動く。repo に CLAUDE.md があればその読み順に従う。読まずに実装を始めない
+- 止まるのは「外に出るもの」（送信・公開・他人に届くもの）と「お金が動くもの」だけ。それ以外は聞かずにやって、終わってから報告する。可逆な操作は git で戻せるので承認は要らない
+- 直すのは会話ではなくファイル。会話で直した癖は次のセッションで消える。私が「違う」と言ったら、このファイルか repo の docs に1行足す案をその場で出す
+- 「テストしました」は出力（コマンドと結果）を貼ったときだけ有効。貼らずに緑と言わない
+- 着手前に「これは何のN回目か」を自問し、2回目以上なら前例（docs・過去の PR・Issue）を先に引く
+- 同じ失敗を2回したら、3回目は仕組みで防ぐ（チェック・スクリプト・skill）。人が気をつけるルールは増やさない
+- ファイル・資産を作ったら、次の自分がどの言葉で辿るかを考えて索引に1行足す
+- 長い作業の最後は「⚠️ 判断すること」の番号リストで締める。無くても「なし」と書く
 </code></pre>
+  <p><strong>目標は「Claude を拓也と同じ水準で使いこなす」ことで、その水準はこの8行の癖でできています。</strong>bot-lab 固有の約束（Issue の使い方・KNOWLEDGE の引き方）は repo の <code>CLAUDE.md</code> 側にあるので、ここには入っていません。だからこの種は、別の repo・別の仕事でもそのまま使えます。</p>
+  <p><strong>育て方は1つだけ: 1行足すのは、Claude が間違えた直後だけ。</strong>先回りして書いた規則は守られず、失敗から生まれた規則だけが残ります。同じ行を2回足したくなったら、それは規則ではなく仕組み（skill や小さなチェック）の出番です。</p>
   <p>置き場所は Mac なら <code>~/.claude/CLAUDE.md</code>（<code>~</code> はあなたのホームフォルダ。無ければ作る）。Claude Code に「このテキストを <code>~/.claude/CLAUDE.md</code> に足して」と言えば済みます。</p>
   <p><strong>8行しかないのは手抜きではなく、上限の話です。</strong>Claude Code を作っている Boris Cherny 本人が、この手の説明書について "Try to keep it under 1k tokens or so."（1,000トークン≒日本語で700〜1,000字ほどに収めろ）と書いています。そして肥大は雑な追記からではなく、正しい追記から起きます。ある開発チームの <code>CLAUDE.md</code> は <strong>87行から378行</strong>に膨らみましたが、書いた本人はこう振り返っています。</p>
   <blockquote>「どの追記もその時は正しい判断で、間違って足した行は一行もない」</blockquote>
@@ -273,13 +277,13 @@ a{color:var(--accent-ink)}
 <section id="ladder">
   <h2>階段——この順で覚える</h2>
   <p class="tldr">この節で分かること: いま自分がどこにいて、次に何ができるようになればいいのか。</p>
-  <p>いきなり全部は要りません。1段ずつ。いまは2段目です。</p>
+  <p>いきなり全部は要りません。1段ずつ。<strong>目標は⑤まで登って、拓也が bot-lab でやっているのと同じ形になること。</strong>全段ひとりで進めます（拓也は PR のレビューと Issue の返事だけ）。いまは1段目です。</p>
   <ol class="ladder">
-    <li><span><span class="t">報告する</span><br><span class="d">Issue #1〜#3 を上げてくれた。もう済んでいます</span></span></li>
-    <li class="now"><span><span class="t">1本目の PR を出す（Issue #3・的サーバの接続番号）</span><br><span class="d">拓也の側でも再現できる修正なので、詰まったら代わってもらえる。手順は上の<a href="#first">「最初の1時間」</a></span></span></li>
-    <li><span><span class="t">拓也には再現できない PR を出す（Issue #1・Mac の画面つきの起動）</span><br><span class="d">Mac でしか確かめられない修正。ここから先は代わってもらえないので、拓也はレビューだけ</span></span></li>
-    <li><span><span class="t">知識を書く</span><br><span class="d">Mac で踏んだ罠を <code>docs/KNOWLEDGE.md</code> に1本。次に Mac で開く人（たぶん未来の自分）が引けます</span></span></li>
-    <li><span><span class="t">問いを出す</span><br><span class="d"><code>docs/detection-catalog.md</code>（検知の軸のカタログ）を読んで「これ測れてなくない？」を1つ選ぶ。ここからが本業</span></span></li>
+    <li class="now"><span><span class="t">使う——読んでから動く／止まるのは2か所だけ</span><br><span class="d"><code>/update</code> → <code>/verify</code> → <code>/pr 3</code>。完了条件は Issue #3 に書いてあります。手順は上の<a href="#first">「最初の1時間」</a>。上がった合図＝自分の PR が1本 merge される</span></span></li>
+    <li><span><span class="t">直すのはファイル——Claude が間違えたら会話でなく docs に1行</span><br><span class="d">Issue #1（Mac の画面つきの起動）をひとりで通す。Mac でしか確かめられないので拓也は代われません。途中で踏んだ罠を <code>docs/KNOWLEDGE.md</code> に1本。合図＝KNOWLEDGE に自分の事例が1本ある</span></span></li>
+    <li><span><span class="t">指示する——完了条件を自分で書く</span><br><span class="d"><code>docs/detection-catalog.md</code>（検知の軸のカタログ）から「これ測れてなくない？」を1つ選び、完了条件つきの Issue を自分で立てて <code>/pr</code> に渡す。合図＝自分が書いた完了条件だけで Claude が完走する。ここからが本業</span></span></li>
+    <li><span><span class="t">仕組みにする——同じ失敗の3回目は機械に止めさせる</span><br><span class="d">自分の <code>~/.claude/</code> に skill か小さなチェックを1つ作る（repo には入れない。理由は付録の穴①）。合図＝<code>~/.claude/CLAUDE.md</code> の1行が消えて、代わりに道具が1つある</span></span></li>
+    <li><span><span class="t">並列にする——1本のセッションで全部やらない</span><br><span class="d"><code>git worktree</code> で枝を2本切り、Issue を2つ同時に走らせる。自分は判断事項だけ吸い上げる。合図＝2本の PR が同じ日に出る</span></span></li>
   </ol>
 </section>
 
