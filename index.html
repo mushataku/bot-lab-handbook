@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>bot-lab ハンドブック — 非エンジニアが共同開発者になるまで</title>
+<meta name="description" content="Claude Code は使えるけれど、他人と同じ repo を育てたことはない。そういう人が最初の数週間で必要になることだけを集めたハンドブック。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#F6F7F3; --paper-2:#ECEFE9; --ink:#1C2320; --ink-2:#4F5A55; --line:#D6DBD5;
+  --accent:#0E6B6B; --accent-ink:#0A4F4F; --accent-soft:#DDEDEC;
+  --warn:#C2660F; --warn-soft:#F8E8D6;
+  --code-bg:#1C2320; --code-ink:#E9EDE8;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#141816; --paper-2:#1C221F; --ink:#E5E9E4; --ink-2:#A3ACA6; --line:#2E3733;
+    --accent:#5CC0BE; --accent-ink:#9ADAD8; --accent-soft:#173232;
+    --warn:#E8964A; --warn-soft:#3A2812;
+    --code-bg:#0E1210; --code-ink:#DCE2DC;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#141816; --paper-2:#1C221F; --ink:#E5E9E4; --ink-2:#A3ACA6; --line:#2E3733;
+  --accent:#5CC0BE; --accent-ink:#9ADAD8; --accent-soft:#173232;
+  --warn:#E8964A; --warn-soft:#3A2812;
+  --code-bg:#0E1210; --code-ink:#DCE2DC;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Zen Kaku Gothic New",-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;font-size:16px;line-height:1.85;padding-inline:20px;padding-block:0 96px;overflow-wrap:break-word}
+main{max-width:68ch;margin:0 auto}
+header{padding-block:56px 28px;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+h1{font-size:2.1rem;line-height:1.25;margin:.35em 0 .4em;text-wrap:balance;font-weight:700}
+.lede{color:var(--ink-2);margin:0;font-size:1.05rem}
+nav.toc{margin-top:22px;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.92rem}
+nav.toc a{color:var(--accent-ink);text-decoration:none;border-bottom:1px solid var(--line)}
+nav.toc a:hover,nav.toc a:focus-visible{border-color:var(--accent)}
+section{padding-block:38px 8px}
+h2{font-size:1.38rem;line-height:1.35;margin:0 0 .5em;text-wrap:balance}
+h3{font-size:1.02rem;margin:1.6em 0 .4em;color:var(--accent-ink)}
+p{margin:.55em 0}
+ul,ol{padding-left:1.35em;margin:.5em 0}
+li{margin:.25em 0}
+strong{font-weight:700}
+code{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.9em;background:var(--paper-2);padding:.1em .38em;border-radius:4px}
+pre{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.86rem;line-height:1.65;background:var(--code-bg);color:var(--code-ink);padding:14px 16px;border-radius:8px;overflow-x:auto;margin:.7em 0}
+pre code{background:none;padding:0;font-size:inherit;color:inherit;white-space:pre}
+.tldr{color:var(--accent-ink);font-size:.93rem;margin:0 0 1.1em;padding-left:11px;border-left:3px solid var(--accent-soft)}
+.note{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 16px;border-radius:0 8px 8px 0;margin:1em 0}
+.stop{border-left:3px solid var(--warn);background:var(--warn-soft);padding:10px 16px;border-radius:0 8px 8px 0;margin:1em 0}
+.stop .k{color:var(--warn);font-weight:700;letter-spacing:.06em;font-size:.8rem}
+blockquote{margin:.7em 0;padding-left:12px;border-left:2px solid var(--accent);color:var(--ink-2);font-size:.94rem;line-height:1.7}
+.flow{list-style:none;padding:0;margin:1.1em 0 .2em}
+.flow li{position:relative;padding:0 0 16px 40px;min-height:34px;margin:0}
+.flow li::before{content:"";position:absolute;left:13px;top:30px;bottom:-2px;width:2px;background:var(--line)}
+.flow li:last-child::before{display:none}
+.flow .n{position:absolute;left:0;top:2px;width:28px;height:28px;border-radius:50%;background:var(--paper-2);border:1px solid var(--line);color:var(--accent);font-family:"IBM Plex Mono",monospace;font-size:.82rem;display:flex;align-items:center;justify-content:center}
+.flow .a{font-weight:500;display:block;line-height:1.5}
+.flow .why{color:var(--ink-2);font-size:.9rem;display:block;line-height:1.6}
+.flow .gate{display:block;margin-top:5px;font-size:.85rem;color:var(--warn);border-left:2px solid var(--warn);padding-left:9px;line-height:1.6}
+.flow li.gated .n{border-color:var(--warn);color:var(--warn);background:var(--warn-soft)}
+.flow-return{display:flex;align-items:baseline;gap:9px;margin:.2em 0 0;padding-left:5px;color:var(--accent-ink);font-size:.93rem}
+.flow-return .r{font-size:1.3rem;line-height:1}
+.legend{font-size:.85rem;color:var(--ink-2);margin-top:.9em;display:flex;flex-wrap:wrap;gap:4px 16px}
+.legend b{color:var(--warn);font-weight:700}
+table{border-collapse:collapse;width:100%;margin:.8em 0;font-size:.95rem}
+.tablewrap{overflow-x:auto}
+th,td{text-align:left;vertical-align:top;padding:9px 10px;border-bottom:1px solid var(--line)}
+th{font-size:.8rem;letter-spacing:.08em;color:var(--ink-2);font-weight:700}
+td:first-child{white-space:nowrap}
+.ladder{counter-reset:s;list-style:none;padding:0;margin:.8em 0}
+.ladder li{counter-increment:s;display:grid;grid-template-columns:2.2em 1fr;gap:0 10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.ladder li::before{content:counter(s);font-family:"IBM Plex Mono",monospace;color:var(--accent);font-weight:500;font-size:1.05rem;line-height:1.6}
+.ladder .t{font-weight:700}
+.ladder .d{color:var(--ink-2);font-size:.93rem}
+.ladder li.now{background:var(--accent-soft);border-radius:6px;padding-inline:10px;margin-inline:-10px}
+dl{margin:.6em 0}
+dt{font-weight:700;margin-top:.7em}
+dd{margin:0 0 .2em 0;color:var(--ink-2)}
+.hole{border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin:1.1em 0;background:var(--paper-2)}
+.hole h3{margin:0 0 .35em;color:var(--ink)}
+.hole p{margin:.45em 0}
+.cite{font-size:.82rem;color:var(--ink-2);margin:.7em 0 0;overflow-wrap:anywhere}
+.hour{display:grid;grid-template-columns:5.2em 1fr;gap:9px 12px;margin:.9em 0;font-size:.95rem;align-items:baseline}
+.hour .m{font-family:"IBM Plex Mono",monospace;color:var(--accent);font-variant-numeric:tabular-nums;font-size:.88rem}
+.appendix{border-top:1px solid var(--line);margin-top:22px}
+.appendix h2{color:var(--ink-2)}
+footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);color:var(--ink-2);font-size:.85rem}
+a{color:var(--accent-ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:480px){
+  h1{font-size:1.7rem} body{font-size:15px}
+  .hour{grid-template-columns:1fr;gap:2px 0}
+  .hour .m{margin-top:.7em}
+  .ladder li{grid-template-columns:1.8em 1fr}
+}
+</style>
+
+<main>
+<header>
+  <div class="eyebrow">bot-lab · 共同開発者むけ</div>
+  <h1>bot-lab ハンドブック</h1>
+  <p class="lede">Claude Code は使える。でも他人と同じ repo（リポジトリ＝コードとその変更履歴を置いておく GitHub 上の場所。手元にあるのはその写しです）を、誰かと一緒に育てたことはない。——そこを埋めるための説明です。本編は10分、付録まで読んでも15分。打つコマンドは3つ、やってはいけないことは3つ、途中で聞き返されるのは2箇所。</p>
+  <nav class="toc" aria-label="目次">
+    <a href="#what">何をやっているか</a>
+    <a href="#role">あなたに頼むこと</a>
+    <a href="#three">覚えなくていい3つ</a>
+    <a href="#loop">毎回の流れ</a>
+    <a href="#cmd">3つのコマンド</a>
+    <a href="#stop">止まる所</a>
+    <a href="#seed">種</a>
+    <a href="#first">最初の1時間</a>
+    <a href="#stuck">詰まったら</a>
+    <a href="#words">ことば</a>
+    <a href="#ladder">階段</a>
+    <a href="#holes">付録: この作りの理由</a>
+  </nav>
+</header>
+
+<section id="what">
+  <h2>何をやっているか</h2>
+  <p class="tldr">この節で分かること: このプロジェクトが何を調べようとしているのか。</p>
+  <p>応募フォームを自分たちで1つ作ります。これを<strong>的サイト</strong>と呼びます。そこへ大量の応募を並列で撃ち、撃たれた側のログを自分で読んで「これは何人に見えるか」「どの信号で機械の仕業だと分かるか」を数える。</p>
+  <p><strong>撃つ側と受ける側の両方を自分で持っている</strong>のがこのプロジェクトの形です。片方しか持っていないと、bot 検知が何を見ているのかは外から推測するしかありません。中を開けられるのは、自分で両方作ったときだけです。</p>
+</section>
+
+<section id="role">
+  <h2>あなたに頼むこと</h2>
+  <p class="tldr">この節で分かること: コードを書くこと以外に、あなたにしかできないことが3つあること。</p>
+  <ul>
+    <li><strong>Mac で動かす</strong>——拓也は Windows なので、Mac で壊れる所は拓也には原理的に見えません。あなたの環境が唯一の検出器です</li>
+    <li><strong>2台目のマシンになる</strong>——1台の中で並列を増やしても、どこかで頭打ちになります。別の回線・別の観測点が1つ増えることに意味がある</li>
+    <li><strong>「何を確かめたいか」を決める側に立つ</strong>——手を動かすのは Claude Code。あなたは問いを出す人です</li>
+  </ul>
+  <div class="note">エンジニアの経験は要りません。<strong>「動かなかった」は失敗ではなく成果</strong>です。それがこのプロジェクトがあなたから一番ほしい情報なので。</div>
+</section>
+
+<section id="three">
+  <h2>覚えなくていい3つ——repo を開けば勝手に効く</h2>
+  <p class="tldr">この節で分かること: 規則を暗記しなくていい理由。あなたの Claude が代わりに読みます。</p>
+  <p>拓也の環境設定は1ファイルも渡しません。あれは拓也の OS と拓也の運用に張り付いていて、持って行った先では動かないからです。共有したいものは全部 repo の中に置いてあって、<code>git pull</code>（後述の <code>/update</code>）で届きます。あなたの Claude Code が bot-lab のフォルダを開いた瞬間に、次の3つが効きます。</p>
+  <dl>
+    <dt>① <code>CLAUDE.md</code>——repo が Claude に読ませる説明書</dt>
+    <dd>フォルダを開くだけで読まれます。「テストはこう回す」「本番には勝手に送らない」など、Mac でも Windows でも守れる短い規則だけが書いてあります。あなたが読んで暗記するものではなく、あなたの Claude が読むものです。</dd>
+    <dt>② deny ルール——危ない操作は機械が拒否する</dt>
+    <dd>幹（<code>master</code>＝本物のコード）へ直接書き込む push、<code>git add -A</code>（手元の変更を中身も見ずに全部まとめて入れる操作）、本番（＝的サイトではない、実在する外部のサイト）への送信。この3つは Claude が実行しようとしても設定の段階で弾かれます。しかも <code>deny</code> は、あなたがフォルダを「信頼する」（＝Claude Code が初めてそのフォルダを開いたとき出る確認に Yes と答えること）より前から効きますし、<strong>あなたの手元の設定で緩めることもできません</strong>。禁止が常に許可より優先される、と公式 docs が明記しています。</dd>
+    <dt>③ skills——<code>/</code> で始まる3つのコマンド</dt>
+    <dd>Claude Code で <code>/pr 3</code> のように打つと、決まった手順を Claude が最後まで回します。手順書はあなたが読むものではなく、Claude が実行するものです。repo に入れてあれば、写しを持つ全員に自動で届きます。</dd>
+  </dl>
+  <p class="cite">出典: <a href="https://code.claude.com/docs/en/settings">Claude Code 公式 docs — Settings</a>（"<code>deny</code> and <code>ask</code> rules apply right away." ／ <code>allow</code> は "apply only after each teammate trusts the folder"）／<a href="https://code.claude.com/docs/en/permissions">同 — Permissions</a>（"deny rules from any scope are evaluated before allow rules"）／<a href="https://code.claude.com/docs/en/skills">同 — Skills</a>（project skills は repo に入れればチーム全員に届く）</p>
+</section>
+
+<section id="loop">
+  <h2>毎回の流れ</h2>
+  <p class="tldr">この節で分かること: 1件の作業が始まってから終わるまでの形と、その途中で機械が止めに入る2箇所。</p>
+  <p>やることは、Issue（GitHub 上の「やること・困りごと」1件。番号が付きます）を1つ選んで、PR（変更の提案）にするところまで。いつもこの輪を回します。</p>
+  <ol class="flow">
+    <li><span class="n">1</span><span class="a">bot-lab のフォルダで Claude Code を開く</span><span class="why">新しいセッション（＝Claude との1つの会話）を始める。前の Issue の会話は引きずらない</span></li>
+    <li class="gated"><span class="n">2</span><span class="a"><code>/update</code> を打つ</span><span class="why">最新にして、動かすのに要るものを揃える（中身は下の表）</span><span class="gate">Claude が聞き返す①: まだ commit していない変更（ファイルは保存済みでも、履歴に刻んでいないもの）が手元に残っていると、上書きを避けてここで停止します。→ Claude に「変更を退避して続けて」と言えば進みます。<strong>そもそも「そんなコマンドは無い」と言われたら</strong>、Claude に「<code>git pull</code> してから <code>/update</code>」と言ってください（コマンド自体が repo から届くので、写しが古いと入っていません）</span></li>
+    <li><span class="n">3</span><span class="a">Issue を1つ選ぶ</span><span class="why">1つだけ。2つ同時に手を出さない</span></li>
+    <li class="gated"><span class="n">4</span><span class="a"><code>/pr 3</code> のように番号を打つ</span><span class="why">Issue から PR まで Claude が一気に回す（中身は下の表）</span><span class="gate">Claude が聞き返す②: Issue に「何ができたら完了か」が書かれていないと、実装に入らず質問を返します。→ 質問はその場の画面に出ます。答えられなければ、その質問を Issue #3 にコメントで貼って拓也に振ってください</span></li>
+    <li><span class="n">5</span><span class="a">PR ができる</span><span class="why">Windows・Mac・Linux の3つでテストが自動で回ります。これを CI と呼びます</span></li>
+    <li><span class="n">6</span><span class="a">拓也がレビューして merge（幹に取り込むこと）する</span><span class="why">PR が出た時点で拓也に通知が届きます。あなたから連絡は要りません</span></li>
+  </ol>
+  <p class="flow-return"><span class="r">&#8635;</span><span>merge されたら、新しいセッションを開いて 1 に戻る</span></p>
+  <p class="legend"><span><b>橙の番号</b>＝そこで Claude が聞き返してくる</span><span>止まったら、それは正常です</span></p>
+  <p>CI で「あなたの Mac では通ったのに Windows で落ちた」が出ることがあります。それは事故ではなく、このプロジェクトが欲しい情報そのものです。</p>
+  <div class="note"><strong>1つの Issue につき、セッションは1つ。</strong>会話が長くなると Claude が最初の約束をだんだん守らなくなる、という報告があります（<a href="#holes">付録の穴③</a>）。Issue が1つ終わったら、その会話は閉じて新しく開いてください。</div>
+</section>
+
+<section id="cmd">
+  <h2>3つのコマンド</h2>
+  <p class="tldr">この節で分かること: 打つものは3つだけで、それぞれ何をして、いつ打つのか。</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>打つもの</th><th>何が起きるか</th><th>いつ</th></tr></thead>
+    <tbody>
+      <tr><td><code>/update</code></td><td>最新のコードを取ってきて、Python の環境とテスト専用ブラウザ（Playwright という道具が使うもの。普段の Safari や Chrome とは別物）も揃え、テストまで回す。まだ commit していない変更が手元にあると安全側で止まる</td><td>作業を始めるとき、毎回</td></tr>
+      <tr><td><code>/verify</code></td><td>「テストが通る → 的サーバが立つ → 的サーバに2件撃てる」の3段を一発で確認して、結果を表で出す。落ちた段があれば Issue の下書きまで作る</td><td>環境をいじった後・何か変な時</td></tr>
+      <tr><td><code>/pr 3</code></td><td>Issue #3 を読み、枝を作り、実装し、テストを回し、PR を作って Issue にひとこと書く。<strong>Issue に完了条件が無いと、実装せず聞き返す</strong></td><td>Issue を1つやるとき</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>中身が気になったら <code>.claude/skills/</code> に Markdown（見出し記号が付いただけの、ただのテキスト）で置いてあります。Claude が何をするつもりなのか、全部そこに書いてある。読んで「ここ違うんじゃない」と思ったら、それも Issue にしてください。</p>
+</section>
+
+<section id="stop">
+  <h2>止まる所</h2>
+  <p class="tldr">この節で分かること: 「やってはいけない」は3つだけ。そのうち2つは設定が止め、残る1つはあなたが止める。</p>
+  <div class="stop"><span class="k">STOP 1 ／ 設定が止める</span><br><strong>的サイト以外への本番送信。</strong>自分の PC の中に立てた的サーバ（<code>--form testbed</code>）には何件撃っても大丈夫です。外に出ていく送信は設定が拒否します。例外的にそれが要るケースの条件は <code>ONBOARDING.md</code> §6 にまとめてあるので、読んでから拓也に一言ください。</div>
+  <div class="stop"><span class="k">STOP 2 ／ これだけは設定で止まらない</span><br><strong>お金が動くこと。</strong>有料プランの契約、従量課金の API（使った分だけ課金される外部サービスの窓口）、外部サービスの購入。<strong>ここは <code>deny</code> では止められません</strong>——契約はブラウザの中で起きるので、Claude Code の設定の外側だからです。支払い方法やクレジットカードを入れる画面が出たら、そこで手を止めて拓也に振ってください。<strong>無料枠の範囲で</strong>試すのは自由です——カード番号を求められた時点で、そこは無料枠の外です。</div>
+  <div class="stop"><span class="k">STOP 3 ／ 設定が止める</span><br><strong>幹（<code>master</code>）への直接の push。</strong>拓也が並列で何本もセッションを走らせているので、直接入れると衝突します。必ず PR で。Claude が間違えて実行しようとしても <code>deny</code> が止めます。</div>
+  <p>STOP 1 と 3 は「Claude が判断して自制する」のではなく「設定が実行させない」形にしてあります。<strong>説明書に「やらないでね」と書くのと、設定で禁止するのは強さが違う。</strong>だから安全は文章ではなく <code>deny</code> に書いてあります。</p>
+</section>
+
+<section id="seed">
+  <h2>あなたの <code>~/.claude/CLAUDE.md</code> に貼る種</h2>
+  <p class="tldr">この節で分かること: repo の説明書とは別に、あなた自身の Claude の癖を決める8行があること。</p>
+  <p>これは repo の説明書ではなく、<strong>あなた自身の Claude Code の癖</strong>を決めるファイルです。渡すのは種だけで、あとは自分で育ててください。育てる前提のものだから、拓也のものとズレていい。</p>
+<pre><code>- 読まずに実装を始めない。repo の CLAUDE.md と ONBOARDING.md を先に読んでから動く
+- 送信・書込は dry-run が既定。`--execute` は明示したときだけ
+- 止まるのは「外に出るもの」と「お金が動くもの」だけ。それ以外は聞かずにやって報告する
+- 「テストしました」は出力を貼ったときだけ有効。貼らずに緑と言わない
+- 詰まったら `grep -n "&lt;語&gt;" docs/KNOWLEDGE.md` で事例を引く（通読はしない）
+- ファイル・資産を作ったら、索引（`docs/TODO.md` / `docs/KNOWLEDGE.md`）に1行足す
+- 1 Issue = 1 セッション。他の Issue には手を広げない
+- エラーは全文を GitHub Issue に貼る（LINE でなく。ログがそのまま残る）
+</code></pre>
+  <p>置き場所は Mac なら <code>~/.claude/CLAUDE.md</code>（<code>~</code> はあなたのホームフォルダ。無ければ作る）。Claude Code に「このテキストを <code>~/.claude/CLAUDE.md</code> に足して」と言えば済みます。</p>
+  <p><strong>8行しかないのは手抜きではなく、上限の話です。</strong>Claude Code を作っている Boris Cherny 本人が、この手の説明書について "Try to keep it under 1k tokens or so."（1,000トークン≒日本語で700〜1,000字ほどに収めろ）と書いています。そして肥大は雑な追記からではなく、正しい追記から起きます。ある開発チームの <code>CLAUDE.md</code> は <strong>87行から378行</strong>に膨らみましたが、書いた本人はこう振り返っています。</p>
+  <blockquote>「どの追記もその時は正しい判断で、間違って足した行は一行もない」</blockquote>
+  <p>だからそのチームの対策も「削る」ではなく「上限を超えた分は別のファイルへ引っ越させる」でした。あなたも増やしたくなったら、消すか移すかを先に決めてから足してください。</p>
+  <p class="cite">出典: <a href="https://news.ycombinator.com/item?id=46256682">Boris Cherny のコメント（Hacker News）</a> — "Try to keep it under 1k tokens or so. We will show you a warning if it might be too big."／<a href="https://zenn.dev/tokium_dev/articles/claude-md-keeps-growing">CLAUDE.md が肥大化する問題 — TOKIUM 開発者ブログ</a>（87行→378行・対策は上限を超えた分の置き場を変えること）</p>
+</section>
+
+<section id="first">
+  <h2>ひとりで最初の1時間</h2>
+  <p class="tldr">この節で分かること: 今日ひとりでやる手順と、どこで止まってよいか。</p>
+  <p>誰かと画面を合わせる必要はありません。ひとりで、下の順に。<strong>詰まったら直そうとせず、そこで止めて Issue に貼ってください。</strong>それが唯一の逃げ道で、正しい逃げ道です。</p>
+  <div class="hour">
+    <span class="m">0–10分</span><span>ターミナルを開き、<code>cd</code> で bot-lab の写しがあるフォルダへ移動して <code>claude</code> と打つ。最初に「このフォルダを信頼しますか」と聞かれたら Yes。作業中に「これを実行していいですか」と聞かれたときも基本 Yes で構いません（本当に危ないものは、そもそも聞かずに <code>deny</code> が弾きます）。開いたら <code>/update</code>。<strong>「そんなコマンドは無い」と言われたら</strong>、Claude に「<code>git pull</code> してから <code>/update</code>」と言ってください。それでも駄目なら出た文字を Issue に貼って、今日はそこで終わりでいい。通ったら上の<a href="#seed">種</a>を <code>~/.claude/CLAUDE.md</code> に貼る（Claude に頼めば書いてくれます）</span>
+    <span class="m">10–20分</span><span><code>/verify</code>。3段の表が全部 OK になるのを見る。<strong>落ちたら、それが今日の成果です。</strong>出力を丸ごと Issue に貼って、そこで終わりにしてください</span>
+    <span class="m">20–50分</span><span><code>/pr 3</code>。Claude が Issue を読み、枝を作り、直し、テストを回し、PR を作るのを眺める。途中で「なんでそうするの」と聞いて構いません。答えられなければ、それも Issue のネタです</span>
+    <span class="m">50–60分</span><span>できたかどうかは、GitHub の bot-lab を開いて <strong>Pull requests タブ</strong>を見れば分かります。自分の出した行が1つ増えていれば完了で、あとは何もしなくていい（拓也に通知が届きます）。増えていなければ、Claude の最後の出力を Issue #3 にコメントで貼ってください</span>
+  </div>
+  <p>ターミナルも Claude Code も動かないときは、GitHub の bot-lab を開いて Issues タブから直接 Issue を立ててください。<strong>そこが最後の退路です</strong>——手元が全部壊れていても、ブラウザさえあれば連絡はつきます。</p>
+  <p>1時間で PR まで行かなくても問題ありません。<code>/verify</code> が落ちて Issue が1本増えただけでも、輪は回っています。</p>
+</section>
+
+<section id="stuck">
+  <h2>詰まったら</h2>
+  <p class="tldr">この節で分かること: 詰まったときに自分で直そうとしなくていい理由と、代わりにやること。</p>
+  <ol>
+    <li>環境まわり（Python・テスト用ブラウザ・<code>gh</code> の GitHub ログイン）で止まったら <code>/verify</code>。<strong>どの段で落ちたかが表で出ます</strong>。<code>/</code> のコマンド自体が認識されないときは、Claude に「<code>git pull</code> してから」と言ってください</li>
+    <li><strong>その出力を全文、Issue に貼る。</strong>LINE にスクショを送るより速いです。ログをそのまま貼れて、拓也の側で打ち直しが要らない。Claude に「これを Issue にして」と言えば書いてくれます。テンプレートに「環境」「再現手順」の欄があります。<strong>貼る先は、<code>/pr 3</code> の途中で止まったなら Issue #3 にコメント、<code>/update</code> や <code>/verify</code> で止まったなら新しい Issue</strong></li>
+    <li><strong>そこで終わりにしていい。</strong>Mac 固有の失敗は、このプロジェクトがあなたに見つけてほしいものそのものです。黙って直してしまうと、何が壊れていたのかが残りません</li>
+  </ol>
+  <p>ひとつだけ、逆のことを言います。<strong>環境まわりの手順を Claude に全部やらせて、自分は見ていない——これはやらない方がいい。</strong>非エンジニアの立場で Claude Code を業務に入れた人が、後からこう書いていました。</p>
+  <blockquote>「環境構築だけは自分で一つずつ理解しながらやった方がよかった」</blockquote>
+  <p>この人は環境構築を任せきりにしたことを失敗として振り返っています。とはいえ、全部を理解してから進むのは無理です。具体的にはこれだけやってください——<strong><code>/update</code> が終わったら、Claude に「いま何を入れたか、3行で」と聞いて、返ってきた3行を Issue #3 のコメントに貼っておく。</strong>後でおかしくなったとき、それが唯一の手がかりになります。</p>
+  <p class="cite">出典: <a href="https://note.com/earthbrain_eng/n/nc7793d84dfc8">非エンジニアが Claude Code を使ったら、開発プロセスが逆転し始めた ー実践・つまずき編（EARTHBRAIN・PdM）</a></p>
+</section>
+
+<section id="words">
+  <h2>ことば——これだけ分かれば会話が通じる</h2>
+  <p class="tldr">この節で分かること: 拓也や Claude が説明なしで使ってくる語の意味。</p>
+  <dl>
+    <dt>repo（リポジトリ）</dt><dd>コードと変更履歴を置いておく GitHub 上の場所。手元にあるのはその写し</dd>
+    <dt>clone</dt><dd>repo の写しを自分の PC に作ること。すでに済んでいます</dd>
+    <dt>Issue</dt><dd>GitHub 上の「やること・困りごと」1件。番号が付く（#3 など）</dd>
+    <dt>ブランチ（枝）</dt><dd>作業用の枝。<code>master</code> が幹で、変更はいったん枝で作る</dd>
+    <dt>commit</dt><dd>変更にひと区切り付けて履歴に刻むこと。Claude がやります</dd>
+    <dt>push</dt><dd>手元の変更を GitHub 側へ送ること</dd>
+    <dt>pull</dt><dd>逆に、GitHub 側の最新を手元の写しに取り込むこと。<code>/update</code> が最初にやるのがこれ</dd>
+    <dt>PR（プルリクエスト）</dt><dd>「この枝を幹に入れていい？」という提案。差分とテスト結果が見える</dd>
+    <dt>merge</dt><dd>PR を幹に入れること。拓也がやる</dd>
+    <dt>CI</dt><dd>PR を出すと自動で回るテスト。ここでは Windows・Mac・Linux の3つ</dd>
+    <dt>セッション</dt><dd>Claude Code との1つの会話。Issue 1件につき1つ</dd>
+    <dt>トークン</dt><dd>AI が文章を数えるときの単位。1,000トークンで日本語700〜1,000字ほど</dd>
+    <dt>venv</dt><dd>この repo 専用の Python の箱。<code>source .venv/bin/activate</code> で入る。<code>/update</code> が面倒を見る</dd>
+    <dt><code>gh</code></dt><dd>ターミナルから GitHub を操作する道具。ログイン済みです</dd>
+    <dt>grep</dt><dd>ファイルの中を語で探す命令。「この語がどこに書いてあるか」を一瞬で出す</dd>
+    <dt>的サーバ（testbed）</dt><dd>自分の PC の中に立てる、応募フォームの偽物。ここに撃つのは自由</dd>
+    <dt>dry-run</dt><dd>送る直前で止まるモード。内容は全部出るが送らない。既定はこっち</dd>
+    <dt>deny ルール</dt><dd>設定ファイルに書く禁止。Claude が何をしようとしても実行前に弾かれる</dd>
+    <dt>hook</dt><dd>特定の操作の前後で自動的に走る小さなプログラム。この repo では使っていません（<a href="#holes">付録の穴①</a>）</dd>
+  </dl>
+</section>
+
+<section id="ladder">
+  <h2>階段——この順で覚える</h2>
+  <p class="tldr">この節で分かること: いま自分がどこにいて、次に何ができるようになればいいのか。</p>
+  <p>いきなり全部は要りません。1段ずつ。いまは2段目です。</p>
+  <ol class="ladder">
+    <li><span><span class="t">報告する</span><br><span class="d">Issue #1〜#3 を上げてくれた。もう済んでいます</span></span></li>
+    <li class="now"><span><span class="t">1本目の PR を出す（Issue #3・的サーバの接続番号）</span><br><span class="d">拓也の側でも再現できる修正なので、詰まったら代わってもらえる。手順は上の<a href="#first">「最初の1時間」</a></span></span></li>
+    <li><span><span class="t">拓也には再現できない PR を出す（Issue #1・Mac の画面つきの起動）</span><br><span class="d">Mac でしか確かめられない修正。ここから先は代わってもらえないので、拓也はレビューだけ</span></span></li>
+    <li><span><span class="t">知識を書く</span><br><span class="d">Mac で踏んだ罠を <code>docs/KNOWLEDGE.md</code> に1本。次に Mac で開く人（たぶん未来の自分）が引けます</span></span></li>
+    <li><span><span class="t">問いを出す</span><br><span class="d"><code>docs/detection-catalog.md</code>（検知の軸のカタログ）を読んで「これ測れてなくない？」を1つ選ぶ。ここからが本業</span></span></li>
+  </ol>
+</section>
+
+<section id="holes" class="appendix">
+  <h2>付録: この作りの理由（今日は読まなくていい）</h2>
+  <p class="tldr">この節で分かること: 同じことをやった人たちが落ちた穴が3つあり、上の作りはその3つを避けた結果だということ。</p>
+  <p>3つとも<strong>静かに壊れる</strong>のが共通点です。エラーが出ないので、壊れたことに誰も気づかない。気をつけようがないものは、設計で避けるしかありません。</p>
+
+  <div class="hole">
+    <h3>穴①: 渡した仕掛けが、相手の OS で黙って壊れる</h3>
+    <p>共有設定には hook——特定の操作の前後で自動的に走る小さなスクリプト——を仕込めます。「本番へ送る前に必ず確認を挟む」のような安全装置を書ける場所です。ところがこれは、書いた人の OS でしか動かないことがあります。</p>
+    <p>報告例が1つ。hook のファイルの場所の書き方によって "Failed to canonicalize script path" で落ちる、という Windows のバグ報告が上がりました。1か月後に bot が「30日動きが無い。まだ起きているならコメントを」と書き、それに対してこう返した人がいます。</p>
+    <blockquote>"It's still occurring, and in macos."</blockquote>
+    <p>直っていないし、Windows だけの話でもなかった。ところが<strong>その5週間後、bot はそのまま「無活動」として閉じました</strong>（2026年2月28日）。そして怖いのは、<strong>hook が壊れても作業自体は普通に進んでしまうこと</strong>です。安全のための検査だけが静かに消える。</p>
+    <p>だからこの repo は、守らせたいことを hook ではなく <code>deny</code> に書いてあります。<code>deny</code> は設定ファイルの1行で、スクリプトを走らせません。<strong>走らないものは壊れようがない。</strong></p>
+    <p class="cite">出典: <a href="https://github.com/anthropics/claude-code/issues/12874">claude-code issue #12874</a>（"[BUG] Windows: Failed to canonicalize script path error with relative paths in hooks"・closed / not planned＝無活動による自動クローズ）／<a href="https://github.com/anthropics/claude-code/issues/12874#issuecomment-3786544613">同 issue の macOS 報告コメント</a>／類例 <a href="https://github.com/anthropics/claude-code/issues/6023">issue #6023</a>（Windows で hook 内の環境変数が展開されない）</p>
+  </div>
+
+  <div class="hole">
+    <h3>穴②: コピーして配った説明書は、半年で別物になる</h3>
+    <p>同じ <code>CLAUDE.md</code> を3つの repo にコピーして配った結果が、こう書かれています。</p>
+    <blockquote>"Three repos, three copy-pasted CLAUDE.md files, each edited independently. Six months later the conventions have diverged and nobody knows which one is right."</blockquote>
+    <p>コピーには継承のしくみがありません。片方を直しても、もう片方は直らない。しかも「ズレました」という通知はどこにも出ないので、気づくのは食い違いが実害になった後です。</p>
+    <p>この repo が拓也の設定を1ファイルも渡さないのは、これが理由です。共有したいものは <strong>repo の中に1つだけ置いて、pull で届ける</strong>。あなたの手元に増えるコピーは<a href="#seed">「種」</a>の8行だけに絞ってあります。</p>
+    <p class="cite">出典: <a href="https://jguillaumesio.com/blog/sharing-claude-code-config-team/">Sharing Claude Code configuration across a team — Jean-Guillaume Sio</a>（フリーランス開発者の実践記）。★同記事の処方は「共有 <code>deny</code> を git に入れる」「説明書には検査できる規則だけ書く」に加えて、<strong>共通部分を配布するスクリプトで揃える</strong>案も挙げています。この repo は逆に、配布そのものをやめる側に倒しました。</p>
+  </div>
+
+  <div class="hole">
+    <h3>穴③: 会話が長くなると、規則が守られなくなる</h3>
+    <p>Claude Code を扱った Hacker News のスレッドで、説明書に書いた規則がどれくらい持つかについて、こう書いた人がいます。</p>
+    <blockquote>"Sure, for 4/5 interactions then will ignore those completely :)"</blockquote>
+    <p>正直に書いておくと、<strong>これは1人のコメントで、しかも末尾に顔文字が付いた軽口です</strong>。追試も統計もありません。数字として使えるものではない。ただ「長い会話では規則がだんだん薄れる」という向き自体は、同じスレッドの他の実務者の話とも噛み合っています。</p>
+    <p>なので「4〜5往復で切ってください」とは言いません。代わりに<strong>1つの Issue を1つの会話で終える</strong>という切り方にしてあります。Issue が終われば会話も終わるので、往復の数を自分で数えなくて済む。</p>
+    <p class="cite">出典: <a href="https://news.ycombinator.com/item?id=46257925">Hacker News のコメント（epolanski）</a></p>
+  </div>
+</section>
+
+<footer>
+  <p>正本は repo の <code>ONBOARDING.md</code>（セットアップの全手順・動かないものの一覧・本番の条件）。このページと食い違ったら <code>ONBOARDING.md</code> が正です。</p>
+  <p>2026年9月10日（木）版 ／ <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>（出典を書けば自由に使えます）</p>
+</footer>
+</main>
+</html>
